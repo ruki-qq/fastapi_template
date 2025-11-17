@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: qa
+      POSTGRES_USER: qa_user
+      POSTGRES_PASSWORD: qa_password
+    ports:
+      - 5432:5432
+    restart: always
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=qa_user
+      - DB_PASSWORD=qa_password
+      - DB_NAME=qa
+      - DB_URL=postgresql+asyncpg://qa_user:qa_password@db:5432/qa
+    depends_on:
+      - db
+    ports:
+      - 8000:8000
+    volumes:
+      - ./src:/app/src
+
+volumes:
+  pgdata:
